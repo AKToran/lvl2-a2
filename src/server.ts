@@ -1,8 +1,8 @@
 import app from "./app";
-const port = 5000;
+import config from "./config/env";
 
 const main = () => {
-  app.listen(port,()=>{
+  app.listen(config.port,()=>{
     console.log('App is listening...!');
   })
 }

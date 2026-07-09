@@ -1,12 +1,20 @@
-import express, { type Application, type Request, type Response } from "express";
+import express, {
+  type Application,
+  type Request,
+  type Response,
+} from "express";
+import { authRoute } from "./modules/auth/auth.route";
 
+const app: Application = express();
 
-const app : Application = express();
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Backend is working.",
+    data: {},
+  });
+});
 
-
-app.get("/", (req: Request, res: Response) =>{
-  res.send("Hello.....!!")
-})
-
+app.use("api/auth", authRoute);
 
 export default app;

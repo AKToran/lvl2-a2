@@ -37,12 +37,12 @@ const createIssues = async (req: Request, res: Response) => {
 
 const getAllIssues = async (req: Request, res: Response) => {
   try {
-    const result = await issuesService.getAllIssuesFromDB();
+    const result = await issuesService.getAllIssuesFromDB(req.query);
     sendResponse(res, {
       statusCode: 200,
       success: true,
       message: "Issues retrieved successfully",
-      data: result.rows,
+      data: result?.rows,
     });
   } catch (error: any) {
     sendResponse(res, {

@@ -35,7 +35,7 @@ const loginUser = async(req: Request, res: Response) =>{
     sendResponse(res, {
       statusCode: 500,
       success: false,
-      message: "Login unsuccessful.",
+      message: error.message,
       error: error
     });
   }

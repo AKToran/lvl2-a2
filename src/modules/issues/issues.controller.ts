@@ -42,7 +42,7 @@ const getAllIssues = async (req: Request, res: Response) => {
       statusCode: 200,
       success: true,
       message: "Issues retrieved successfully",
-      data: result?.rows,
+      data: result,
     });
   } catch (error: any) {
     sendResponse(res, {

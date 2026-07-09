@@ -1,5 +1,5 @@
 import { pool } from "../../db";
-import type { IIssue } from "./issues.interface";
+import type { IIssue, IQuery } from "./issues.interface";
 
 const createIssuesIntoDB = async (id: Number, payload: IIssue) => {
   const { title, description, type } = payload;
@@ -16,39 +16,63 @@ const createIssuesIntoDB = async (id: Number, payload: IIssue) => {
   return result;
 };
 
-const getAllIssuesFromDB = async (query: {
-  sort?: string;
-  type?: string;
-  status?: string;
-}) => {
+const getAllIssuesFromDB = async (query: IQuery) => {
+  let result;
   if (query.sort) {
     let sort_by = query.sort === "newest" ? "desc" : "asc";
-    const result = await pool.query(`
+    result = await pool.query(`
     SELECT * FROM issues
     ORDER BY created_at ${sort_by}
     `);
-    return result;
   } else if (query.type) {
-    const result = await pool.query(`
+    result = await pool.query(`
     SELECT * FROM issues
     WHERE type='${query.type}'
     `);
-    return result;
-  }
-  else if(query.status){
-    const result = await pool.query(`
+  } else if (query.status) {
+    result = await pool.query(`
     SELECT * FROM issues
     WHERE status='${query.status}'
     `);
-    return result;
-  }
-  else {
-    const result = await pool.query(`
+  } else {
+    result = await pool.query(`
     SELECT * FROM issues
     ORDER BY created_at desc
     `);
-    return result;
-  } 
+  }
+  const results = result.rows;
+  const idFromResult = results.map(r=> r.reporter_id);
+
+  const reporterData = idFromResult.map(async(id)=>{
+    const data = await pool.query(`
+      SELECT * FROM users
+      WHERE id=${id}
+      `)
+      return data.rows[0];
+  })
+
+  const reporters = await Promise.all(reporterData);
+
+  const issuesWithReporterInfo = results.map((issue)=>{
+    const reporter = reporters.find((rep)=> rep.id === issue.reporter_id);
+
+    return {
+      id: issue.id,
+      title: issue.title,
+      description: issue.description,
+      type: issue.type,
+      status: issue.status,
+      reporter: {
+        id: reporter.id,
+        name: reporter.name,
+        role: reporter.role
+      },
+      created_at: issue.created_at,
+      updated_at: issue.updated_at
+    }
+  });
+
+  return issuesWithReporterInfo;
 };
 
 export const issuesService = {

@@ -3,3 +3,9 @@ export interface IIssue {
   description: string;
   type: string;
 }
+
+export interface IQuery {
+  sort?: string;
+  type?: string;
+  status?: string;
+}

@@ -41,20 +41,20 @@ const getAllIssuesFromDB = async (query: IQuery) => {
     `);
   }
   const results = result.rows;
-  const idFromResult = results.map(r=> r.reporter_id);
+  const idFromResult = results.map((r) => r.reporter_id);
 
-  const reporterData = idFromResult.map(async(id)=>{
+  const reporterData = idFromResult.map(async (id) => {
     const data = await pool.query(`
       SELECT * FROM users
       WHERE id=${id}
-      `)
-      return data.rows[0];
-  })
+      `);
+    return data.rows[0];
+  });
 
   const reporters = await Promise.all(reporterData);
 
-  const issuesWithReporterInfo = results.map((issue)=>{
-    const reporter = reporters.find((rep)=> rep.id === issue.reporter_id);
+  const issuesWithReporterInfo = results.map((issue) => {
+    const reporter = reporters.find((rep) => rep.id === issue.reporter_id);
 
     return {
       id: issue.id,
@@ -65,17 +65,59 @@ const getAllIssuesFromDB = async (query: IQuery) => {
       reporter: {
         id: reporter.id,
         name: reporter.name,
-        role: reporter.role
+        role: reporter.role,
       },
       created_at: issue.created_at,
-      updated_at: issue.updated_at
-    }
+      updated_at: issue.updated_at,
+    };
   });
 
   return issuesWithReporterInfo;
 };
 
+const getSingleIssueFromDB = async (id: string) => {
+  const result = await pool.query(
+    `
+    SELECT * FROM issues
+    WHERE id=$1
+    `,
+    [id],
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("No issue found.");
+  }
+
+  const user_id = result.rows[0].reporter_id;
+  const userInfo = await pool.query(
+    `
+    SELECT * FROM users
+    WHERE id=$1
+    `,
+    [user_id],
+  );
+
+  const issue = result.rows[0];
+  const reporter = userInfo.rows[0];
+
+  return {
+    id: issue.id,
+    title: issue.title,
+    description: issue.description,
+    type: issue.type,
+    status: issue.status,
+    reporter: {
+      id: reporter.id,
+      name: reporter.name,
+      role: reporter.role,
+    },
+    created_at: issue.created_at,
+    updated_at: issue.updated_at,
+  };
+};
+
 export const issuesService = {
   createIssuesIntoDB,
   getAllIssuesFromDB,
+  getSingleIssueFromDB,
 };

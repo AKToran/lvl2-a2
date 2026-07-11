@@ -7,12 +7,18 @@ import { authRoute } from "./modules/auth/auth.route";
 import { issuesRoute } from "./modules/issues/issues.route";
 import sendResponse from "./utility/sendResponse";
 import globalErrorHandler from "./middleware/globalErrorHandler";
+import cors from "cors";
 
 const app: Application = express();
 
 app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "http://localhost:5000",
+  }),
+);
 
 app.get("/", (req: Request, res: Response) => {
   sendResponse(res, {

@@ -5,6 +5,8 @@ import express, {
 } from "express";
 import { authRoute } from "./modules/auth/auth.route";
 import { issuesRoute } from "./modules/issues/issues.route";
+import sendResponse from "./utility/sendResponse";
+import globalErrorHandler from "./middleware/globalErrorHandler";
 
 const app: Application = express();
 
@@ -13,14 +15,16 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
+  sendResponse(res, {
+    statusCode: 200,
     success: true,
-    message: "Backend is working.",
-    data: {},
-  });
+    message: "Backend is working....",
+  })
 });
 
 app.use("/api/auth", authRoute);
 app.use("/api/issues", issuesRoute);
+
+app.use(globalErrorHandler);
 
 export default app;

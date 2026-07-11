@@ -116,8 +116,29 @@ const getSingleIssueFromDB = async (id: string) => {
   };
 };
 
+const updateIssueIntoDB = async (id: string, payload: Partial<IIssue>) => {
+  const { title, description, type } = payload;
+
+  const result = await pool.query(
+    `
+    UPDATE issues
+    SET
+    title=COALESCE($1,title),
+    description=COALESCE($2,description),
+    type=COALESCE($3, type),
+    updated_at=NOW()
+    WHERE id=$4
+    RETURNING *
+    `,
+    [title, description, type, id],
+  );
+
+  return result;
+};
+
 export const issuesService = {
   createIssuesIntoDB,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
+  updateIssueIntoDB,
 };

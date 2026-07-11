@@ -54,15 +54,17 @@ const getAllIssues = async (req: Request, res: Response) => {
   }
 };
 
-const getSingleIssue = async (req: Request, res: Response) =>{
+const getSingleIssue = async (req: Request, res: Response) => {
   try {
-    const result = await issuesService.getSingleIssueFromDB(req.params.id as string);
+    const result = await issuesService.getSingleIssueFromDB(
+      req.params.id as string,
+    );
 
     sendResponse(res, {
       statusCode: 200,
       success: true,
       message: "Issue retrieved successfully",
-      data: result
+      data: result,
     });
   } catch (error: any) {
     sendResponse(res, {
@@ -72,10 +74,48 @@ const getSingleIssue = async (req: Request, res: Response) =>{
       error: error,
     });
   }
-}
+};
+
+const updateIssue = async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization;
+    if (!token) {
+      sendResponse(res, {
+        statusCode: 401,
+        success: false,
+        message: "Unauthorized access!",
+      });
+      return;
+    }
+
+    const decoded = jwt.verify(token, config.secret_key) as JwtPayload;
+    const role = decoded.role;
+
+    const { id } = req.params;
+
+    const result = await issuesService.updateIssueIntoDB(
+      id as string,
+      req.body,
+    );
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Issue updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: 500,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
 
 export const issuesController = {
   createIssues,
   getAllIssues,
   getSingleIssue,
+  updateIssue,
 };

@@ -1,3 +1,4 @@
+import type { JwtPayload } from "jsonwebtoken";
 import { pool } from "../../db";
 import type { IIssue, IQuery } from "./issues.interface";
 
@@ -116,8 +117,32 @@ const getSingleIssueFromDB = async (id: string) => {
   };
 };
 
-const updateIssueIntoDB = async (id: string, payload: Partial<IIssue>) => {
+const updateIssueIntoDB = async (
+  user: JwtPayload,
+  id: string,
+  payload: Partial<IIssue>,
+) => {
   const { title, description, type } = payload;
+
+  const issueToUpdate = await pool.query(
+    `
+    SELECT * FROM issues
+    WHERE id=$1
+    `,
+    [id],
+  );
+
+  if(issueToUpdate.rowCount === 0){
+    throw new Error("No issue found.")
+  }
+
+  const issueData = issueToUpdate.rows[0];
+
+  if (user.role === "contributor") {
+    if(user.id !== issueData.reporter_id || issueData.status !== "open"){
+      throw new Error("Access forbidden.");
+    }
+  }
 
   const result = await pool.query(
     `

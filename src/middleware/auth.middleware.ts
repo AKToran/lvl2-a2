@@ -43,6 +43,7 @@ const auth = (...roles: Roles[]) => {
           success: false,
           message: "Forbidden access.",
         });
+        return;
       }
 
       req.user = decoded;
@@ -52,6 +53,5 @@ const auth = (...roles: Roles[]) => {
     }
   };
 };
-
 
 export default auth;

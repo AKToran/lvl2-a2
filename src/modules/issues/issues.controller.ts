@@ -6,19 +6,10 @@ import config from "../../config/env";
 
 const createIssues = async (req: Request, res: Response) => {
   try {
-    const token = req.headers.authorization;
-    if (!token) {
-      sendResponse(res, {
-        statusCode: 401,
-        success: false,
-        message: "Unauthorized access!",
-      });
-      return;
-    }
-
-    const decoded = jwt.verify(token, config.secret_key) as JwtPayload;
-
-    const result = await issuesService.createIssuesIntoDB(decoded.id, req.body);
+    const result = await issuesService.createIssuesIntoDB(
+      req.user?.id,
+      req.body,
+    );
     sendResponse(res, {
       statusCode: 201,
       success: true,
@@ -78,22 +69,12 @@ const getSingleIssue = async (req: Request, res: Response) => {
 
 const updateIssue = async (req: Request, res: Response) => {
   try {
-    const token = req.headers.authorization;
-    if (!token) {
-      sendResponse(res, {
-        statusCode: 401,
-        success: false,
-        message: "Unauthorized access!",
-      });
-      return;
-    }
-
-    const decoded = jwt.verify(token, config.secret_key) as JwtPayload;
-    const role = decoded.role;
+    const user = req.user;
 
     const { id } = req.params;
 
     const result = await issuesService.updateIssueIntoDB(
+      user as JwtPayload,
       id as string,
       req.body,
     );
@@ -117,12 +98,12 @@ const deleteIssue = async (req: Request, res: Response) => {
   try {
     const result = await issuesService.deleteIssueInDB(req.params.id as string);
 
-    if(result.rowCount === 0){
+    if (result.rowCount === 0) {
       sendResponse(res, {
         statusCode: 404,
         success: false,
-        message: "Issue not found."
-      })
+        message: "Issue not found.",
+      });
       return;
     }
 

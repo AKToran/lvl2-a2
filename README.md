@@ -4,11 +4,11 @@ Live [link](https://devtracker-flax.vercel.app/)
 
 ## Features:   
 
-> - User registration and login using JWT and `bcryptjs` password hashing.
-> - API endpoints for managing issues.
-> - Role based authentication with custom auth middleware
-> - Sorting and filtering with query parameters
-> - Relational data modeling with PostgreSQL using NeonDB
+> - **User registration and login using JWT and `bcryptjs` password hashing.**
+> - **API endpoints for managing issues.**
+> - **Role based authentication with custom auth middleware.**
+> - **Sorting and filtering with query parameters.**
+> - **Relational data modeling with PostgreSQL using NeonDB.**
 
 ## Tech used:  
 
@@ -42,9 +42,9 @@ Live [link](https://devtracker-flax.vercel.app/)
 
 
 4. **Running the Application** 
-  ```bash
-  npm run dev
-  ```
+   ```bash
+   npm run dev
+   ```
 
 The server should now be running at `http://localhost:5000`.
 
@@ -115,5 +115,3 @@ Tracks project bugs and feature requests submitted by team members.
 | `reporter_id` | `INT` | `NOT NULL` | Logical link to `users.id`. *Validated via application logic.* |
 | `created_at` | `TIMESTAMP` | `DEFAULT CURRENT_TIMESTAMP` | Timestamp marking when the issue was created. |
 | `updated_at` | `TIMESTAMP` | `DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | Timestamp marking when the issue is updated. |
-
-
